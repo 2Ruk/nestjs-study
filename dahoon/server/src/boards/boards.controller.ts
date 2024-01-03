@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   ParseIntPipe,
   Post,
@@ -23,10 +24,12 @@ import { User } from 'src/auth/user.entity';
 @Controller('boards')
 @UseGuards(AuthGuard())
 export class BoardsController {
+  private logger = new Logger('BoardController');
   constructor(private boardsService: BoardsService) {}
 
   @Get('/')
   async getAllBoard(@GetUser() user: User): Promise<Board[]> {
+    this.logger.verbose(`User "${user.username}" trying to get all boards`);
     return this.boardsService.getAllBoards(user);
   }
 
