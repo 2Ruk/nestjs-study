@@ -9,10 +9,14 @@ import { BoardRepository } from '@api/board/board.repository';
 import { Board } from '@api/board/entities/board.entity';
 import { BoardStatus } from '@api/user/enum/board.status.enum';
 import { UpdateBoardDto } from '@api/board/dto/update-board.dto';
+import { BoardLikeRepository } from '@api/board/board-like.repository';
 
 @Injectable()
 export class BoardService {
-  constructor(private readonly boardRepository: BoardRepository) {}
+  constructor(
+    private readonly boardRepository: BoardRepository,
+    private readonly boardLikeRepository: BoardLikeRepository,
+  ) {}
 
   async create(userId: number, createBoardDto: CreateBoardDto) {
     const board = Board.create({
@@ -75,12 +79,7 @@ export class BoardService {
 
   async findAll() {
     try {
-      return await this.boardRepository
-        .createQueryBuilder('board')
-        .where('board.user_id IS NOT NULL')
-        .innerJoinAndSelect('board.user', 'user')
-        .orderBy('board.created_at', 'DESC')
-        .getMany();
+      return await this.boardRepository.findAllBoardAndUserAndLikes();
     } catch (e) {
       console.log(e);
       throw new BadRequestException('게시글을 불러오는데 실패하였습니다.');
@@ -98,5 +97,48 @@ export class BoardService {
 
   async findAllMyBoard(userId: number) {
     return await this.boardRepository.findAllMyBoard(userId);
+  }
+
+  async like(userId: number, boardId: number) {
+    const board = await this.boardRepository.findOneBy({ id: boardId });
+    if (!board) {
+      throw new NotFoundException('존재하지 않는 게시글 입니다.');
+    }
+
+    const like = await this.boardLikeRepository.findByUserIdAndBoardId(
+      userId,
+      boardId,
+    );
+    if (like) {
+      throw new BadRequestException('이미 좋아요를 누른 게시글 입니다.');
+    }
+
+    const boardLike = this.boardLikeRepository.create({
+      board: {
+        id: boardId,
+      },
+      user: {
+        id: userId,
+      },
+    });
+
+    await this.boardLikeRepository.save(boardLike);
+  }
+
+  async cancelLike(userId: number, boardId: number) {
+    const board = await this.boardRepository.findOneBy({ id: boardId });
+    if (!board) {
+      throw new NotFoundException('존재하지 않는 게시글 입니다.');
+    }
+
+    const like = await this.boardLikeRepository.findByUserIdAndBoardId(
+      userId,
+      boardId,
+    );
+    if (!like) {
+      throw new BadRequestException('좋아요를 취소할 수 없는 게시글 입니다.');
+    }
+
+    await this.boardLikeRepository.delete(like.id);
   }
 }

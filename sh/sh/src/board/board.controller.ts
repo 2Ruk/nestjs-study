@@ -62,4 +62,22 @@ export class BoardController {
   findOne(@Param('id') id: string) {
     return this.boardService.findOne(+id);
   }
+
+  @UseGuards(JwtGuard)
+  @Post(':board_id/like')
+  like(
+    @CurrentUser() { id }: UserJwtPayload,
+    @Param('board_id') boardId: number,
+  ) {
+    return this.boardService.like(id, boardId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':board_id/like')
+  cancelLike(
+    @CurrentUser() { id }: UserJwtPayload,
+    @Param('board_id') boardId: number,
+  ) {
+    return this.boardService.cancelLike(id, boardId);
+  }
 }
