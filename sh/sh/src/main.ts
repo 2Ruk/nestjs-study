@@ -5,7 +5,7 @@ import { LoggingInterceptor } from '@api/library/interceptor/logger.interceptor'
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { TimeoutInterceptor } from '@api/library/interceptor/time-ouut.interceptor';
 import * as cookieParser from 'cookie-parser';
-import { ResponseInterceptor } from "@api/library/interceptor/response.interceptor";
+import { ResponseInterceptor } from '@api/library/interceptor/response.interceptor';
 
 async function bootstrap() {
   // NOTE: 나중에는 ENV로 관리할 수 있도록 한다.
