@@ -52,12 +52,34 @@ export class BoardService {
     }
   }
 
+  async delete(userId: number, boardId: number) {
+    const board = await this.boardRepository.findOneBy({ id: boardId });
+    if (!board) {
+      throw new NotFoundException('존재하지 않는 게시글 입니다.');
+    }
+
+    const user = await board.user;
+    if (user.id !== userId) {
+      throw new UnauthorizedException(
+        '자신이 작성한 게시글만 삭제할 수 있습니다.',
+      );
+    }
+
+    try {
+      await this.boardRepository.delete(boardId);
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+  }
+
   async findAll() {
     try {
       return await this.boardRepository
         .createQueryBuilder('board')
         .where('board.user_id IS NOT NULL')
         .innerJoinAndSelect('board.user', 'user')
+        .orderBy('board.created_at', 'DESC')
         .getMany();
     } catch (e) {
       console.log(e);

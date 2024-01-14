@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -35,6 +36,15 @@ export class BoardController {
     @Body() updateBoardDto: UpdateBoardDto,
   ) {
     return this.boardService.update(id, boardId, updateBoardDto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':board_id')
+  delete(
+    @CurrentUser() { id }: UserJwtPayload,
+    @Param('board_id') boardId: number,
+  ) {
+    return this.boardService.delete(id, boardId);
   }
 
   @Get()
