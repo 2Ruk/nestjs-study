@@ -7,6 +7,7 @@ import { UpdateBoardDto } from '@api/board/dto/update-board.dto';
 import { BoardLikeRepository } from '@api/board/board-like.repository';
 import { ValidateService } from '@api/board/validator/validate.service';
 import { ValidateIds } from '@api/board/validator/validate-ids';
+import { Pagination } from '@api/pagination';
 
 @Injectable()
 export class BoardService {
@@ -59,9 +60,15 @@ export class BoardService {
     }
   }
 
-  async findAll() {
+  async findAll(page: number, unit: number) {
     try {
-      return await this.boardRepository.findAllBoardAndUserAndLikes();
+      const [boards, total] =
+        await this.boardRepository.findAllBoardAndUserAndLikesAndCount(
+          page,
+          unit,
+        );
+
+      return { boards: boards, pagination: Pagination.of(total, page, unit) };
     } catch (e) {
       console.log(e);
       throw new BadRequestException('게시글을 불러오는데 실패하였습니다.');
@@ -77,8 +84,14 @@ export class BoardService {
     return board;
   }
 
-  async findAllMyBoard(userId: number) {
-    return await this.boardRepository.findAllMyBoard(userId);
+  async findAllMyBoard(userId: number, page: number, unit: number) {
+    const [boards, total] = await this.boardRepository.findAllMyBoardAndCount(
+      userId,
+      page,
+      unit,
+    );
+
+    return { boards: boards, pagination: Pagination.of(total, page, unit) };
   }
 
   async like(userId: number, boardId: number) {

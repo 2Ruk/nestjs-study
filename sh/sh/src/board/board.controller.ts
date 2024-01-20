@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
@@ -48,14 +49,18 @@ export class BoardController {
   }
 
   @Get()
-  findAll() {
-    return this.boardService.findAll();
+  findAll(@Query('page') page: number, @Query('unit') unit: number) {
+    return this.boardService.findAll(page, unit);
   }
 
   @UseGuards(JwtGuard)
   @Get('me')
-  findAllMyBoard(@CurrentUser() { id }: UserJwtPayload) {
-    return this.boardService.findAllMyBoard(id);
+  findAllMyBoard(
+    @CurrentUser() { id }: UserJwtPayload,
+    @Query('page') page: number,
+    @Query('unit') unit: number,
+  ) {
+    return this.boardService.findAllMyBoard(id, page, unit);
   }
 
   @Get(':id')

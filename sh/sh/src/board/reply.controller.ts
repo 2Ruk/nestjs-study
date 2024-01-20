@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { ReplyService } from '@api/board/reply.service';
@@ -51,8 +52,12 @@ export class ReplyController {
   }
 
   @Get(':board_id/reply')
-  findAllByBoard(@Param('board_id') boardId: number) {
-    return this.replyService.findAllByBoardId(boardId);
+  findAllByBoard(
+    @Param('board_id') boardId: number,
+    @Query('page') page: number,
+    @Query('unit') unit: number,
+  ) {
+    return this.replyService.findAllByBoardId(boardId, page, unit);
   }
 
   @UseGuards(JwtGuard)

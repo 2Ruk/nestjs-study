@@ -8,20 +8,26 @@ export class BoardRepository extends Repository<Board> {
     super(Board, dataSource.createEntityManager());
   }
 
-  async findAllMyBoard(userId: number) {
+  async findAllMyBoardAndCount(userId: number, page: number, unit: number) {
+    const skip = (page - 1) * unit;
     return await this.createQueryBuilder('board')
-      .where('board.user_id = :id', {
+      .where('board.user_id = :userId', {
         userId,
       })
-      .getMany();
+      .skip(skip)
+      .take(unit)
+      .getManyAndCount();
   }
 
-  async findAllBoardAndUserAndLikes() {
+  async findAllBoardAndUserAndLikesAndCount(page: number, unit: number) {
+    const skip = (page - 1) * unit;
     return await this.createQueryBuilder('board')
       .where('board.user_id IS NOT NULL')
       .innerJoinAndSelect('board.user', 'user')
       .leftJoinAndSelect('board.likes', 'likes')
       .orderBy('board.created_at', 'DESC')
-      .getMany();
+      .skip(skip)
+      .take(unit)
+      .getManyAndCount();
   }
 }

@@ -5,6 +5,7 @@ import { UpdateReplyDto } from '@api/board/dto/update-reply.dto';
 import { ReplyLikeRepository } from '@api/board/reply-like.repository';
 import { ValidateIds } from '@api/board/validator/validate-ids';
 import { ValidateService } from '@api/board/validator/validate.service';
+import { Pagination } from '@api/pagination';
 
 @Injectable()
 export class ReplyService {
@@ -75,15 +76,19 @@ export class ReplyService {
     }
   }
 
-  async findAllByBoardId(boardId: number) {
+  async findAllByBoardId(boardId: number, page: number, unit: number) {
     const validateIds: ValidateIds = { boardId: boardId };
     await this.validateService.existValidate(validateIds);
 
     try {
-      return await this.replyRepository.find({
+      const [replies, total] = await this.replyRepository.findAndCount({
         where: { board: { id: boardId } },
         order: { id: 'DESC' },
+        skip: (page - 1) * unit,
+        take: unit,
       });
+
+      return { replies: replies, pagination: Pagination.of(total, page, unit) };
     } catch (e) {
       console.log(e);
       throw new BadRequestException(
