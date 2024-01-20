@@ -1,20 +1,17 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ReplyRepository } from '@api/board/reply.repository';
 import { CreateReplyDto } from '@api/board/dto/create-reply.dto';
 import { UpdateReplyDto } from '@api/board/dto/update-reply.dto';
-import { BoardRepository } from '@api/board/board.repository';
 import { ReplyLikeRepository } from '@api/board/reply-like.repository';
+import { ValidateIds } from '@api/board/validator/validate-ids';
+import { ValidateService } from '@api/board/validator/validate.service';
 
 @Injectable()
 export class ReplyService {
   constructor(
     private readonly replyRepository: ReplyRepository,
     private readonly replyLikeRepository: ReplyLikeRepository,
-    private readonly boardRepository: BoardRepository,
+    private readonly validateService: ValidateService,
   ) {}
 
   async create(
@@ -22,10 +19,8 @@ export class ReplyService {
     boardId: number,
     createReplyDto: CreateReplyDto,
   ) {
-    const board = await this.boardRepository.findOneBy({ id: boardId });
-    if (!board) {
-      throw new BadRequestException('존재하지 않는 게시글입니다.');
-    }
+    const validateIds: ValidateIds = { boardId: boardId };
+    await this.validateService.existValidate(validateIds);
 
     const reply = this.replyRepository.create({
       ...createReplyDto,
@@ -46,25 +41,13 @@ export class ReplyService {
     replyId: number,
     updateReplyDto: UpdateReplyDto,
   ) {
-    const board = await this.boardRepository.findOneBy({ id: boardId });
-    if (!board) {
-      throw new BadRequestException('존재하지 않는 게시글입니다.');
-    }
-
-    const reply = await this.replyRepository.findOneBy({
-      id: replyId,
-      board: { id: boardId },
-    });
-    if (!reply) {
-      throw new BadRequestException('존재하지 않는 댓글입니다.');
-    }
-
-    const user = await reply.user;
-    if (user.id !== userId) {
-      throw new UnauthorizedException(
-        '자신이 작성한 댓글만 수정할 수 있습니다.',
-      );
-    }
+    const validateIds: ValidateIds = {
+      boardId: boardId,
+      replyId: replyId,
+      userId: userId,
+    };
+    await this.validateService.existValidate(validateIds);
+    await this.validateService.isOwner(validateIds);
 
     try {
       await this.replyRepository.update(replyId, updateReplyDto);
@@ -76,25 +59,13 @@ export class ReplyService {
   }
 
   async delete(userId: number, boardId: number, replyId: number) {
-    const board = await this.boardRepository.findOneBy({ id: boardId });
-    if (!board) {
-      throw new BadRequestException('존재하지 않는 게시글입니다.');
-    }
-
-    const reply = await this.replyRepository.findOneBy({
-      id: replyId,
-      board: { id: boardId },
-    });
-    if (!reply) {
-      throw new BadRequestException('존재하지 않는 댓글입니다.');
-    }
-
-    const user = await reply.user;
-    if (user.id !== userId) {
-      throw new UnauthorizedException(
-        '자신이 작성한 댓글만 삭제할 수 있습니다.',
-      );
-    }
+    const validateIds: ValidateIds = {
+      boardId: boardId,
+      replyId: replyId,
+      userId: userId,
+    };
+    await this.validateService.existValidate(validateIds);
+    await this.validateService.isOwner(validateIds);
 
     try {
       await this.replyRepository.delete(replyId);
@@ -105,10 +76,8 @@ export class ReplyService {
   }
 
   async findAllByBoardId(boardId: number) {
-    const board = await this.boardRepository.findOneBy({ id: boardId });
-    if (!board) {
-      throw new BadRequestException('존재하지 않는 게시글입니다.');
-    }
+    const validateIds: ValidateIds = { boardId: boardId };
+    await this.validateService.existValidate(validateIds);
 
     try {
       return await this.replyRepository.find({
@@ -124,18 +93,8 @@ export class ReplyService {
   }
 
   async like(userId: number, boardId: number, replyId: number) {
-    const board = await this.boardRepository.findOneBy({ id: boardId });
-    if (!board) {
-      throw new BadRequestException('존재하지 않는 게시글 입니다.');
-    }
-
-    const reply = await this.replyRepository.findOneBy({
-      id: replyId,
-      board: { id: boardId },
-    });
-    if (!reply) {
-      throw new BadRequestException('존재하지 않는 댓글입니다.');
-    }
+    const validateIds: ValidateIds = { boardId: boardId, replyId: replyId };
+    await this.validateService.existValidate(validateIds);
 
     const like = await this.replyLikeRepository.findOneBy({
       reply: { id: replyId },
@@ -158,18 +117,8 @@ export class ReplyService {
   }
 
   async cancelLike(userId: number, boardId: number, replyId: number) {
-    const board = await this.boardRepository.findOneBy({ id: boardId });
-    if (!board) {
-      throw new BadRequestException('존재하지 않는 게시글 입니다.');
-    }
-
-    const reply = await this.replyRepository.findOneBy({
-      id: replyId,
-      board: { id: boardId },
-    });
-    if (!reply) {
-      throw new BadRequestException('존재하지 않는 댓글입니다.');
-    }
+    const validateIds: ValidateIds = { boardId: boardId, replyId: replyId };
+    await this.validateService.existValidate(validateIds);
 
     const like = await this.replyLikeRepository.findOneBy({
       reply: { id: replyId },

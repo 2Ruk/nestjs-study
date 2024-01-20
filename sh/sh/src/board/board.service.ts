@@ -1,21 +1,19 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { BoardRepository } from '@api/board/board.repository';
 import { Board } from '@api/board/entities/board.entity';
 import { BoardStatus } from '@api/user/enum/board.status.enum';
 import { UpdateBoardDto } from '@api/board/dto/update-board.dto';
 import { BoardLikeRepository } from '@api/board/board-like.repository';
+import { ValidateService } from '@api/board/validator/validate.service';
+import { ValidateIds } from '@api/board/validator/validate-ids';
 
 @Injectable()
 export class BoardService {
   constructor(
     private readonly boardRepository: BoardRepository,
     private readonly boardLikeRepository: BoardLikeRepository,
+    private readonly validateService: ValidateService,
   ) {}
 
   async create(userId: number, createBoardDto: CreateBoardDto) {
@@ -35,17 +33,9 @@ export class BoardService {
     boardId: number,
     updateBoardDto: UpdateBoardDto,
   ) {
-    const board = await this.boardRepository.findOneBy({ id: boardId });
-    if (!board) {
-      throw new NotFoundException('존재하지 않는 게시글 입니다.');
-    }
-
-    const user = await board.user;
-    if (user.id !== userId) {
-      throw new UnauthorizedException(
-        '자신이 작성한 게시글만 수정할 수 있습니다.',
-      );
-    }
+    const validateIds: ValidateIds = { boardId: boardId, userId: userId };
+    await this.validateService.existValidate(validateIds);
+    await this.validateService.isOwner(validateIds);
 
     try {
       await this.boardRepository.update(boardId, updateBoardDto);
@@ -57,17 +47,9 @@ export class BoardService {
   }
 
   async delete(userId: number, boardId: number) {
-    const board = await this.boardRepository.findOneBy({ id: boardId });
-    if (!board) {
-      throw new NotFoundException('존재하지 않는 게시글 입니다.');
-    }
-
-    const user = await board.user;
-    if (user.id !== userId) {
-      throw new UnauthorizedException(
-        '자신이 작성한 게시글만 삭제할 수 있습니다.',
-      );
-    }
+    const validateIds: ValidateIds = { boardId: boardId, userId: userId };
+    await this.validateService.existValidate(validateIds);
+    await this.validateService.isOwner(validateIds);
 
     try {
       await this.boardRepository.delete(boardId);
@@ -100,10 +82,8 @@ export class BoardService {
   }
 
   async like(userId: number, boardId: number) {
-    const board = await this.boardRepository.findOneBy({ id: boardId });
-    if (!board) {
-      throw new NotFoundException('존재하지 않는 게시글 입니다.');
-    }
+    const validateIds: ValidateIds = { boardId: boardId };
+    await this.validateService.existValidate(validateIds);
 
     const like = await this.boardLikeRepository.findByUserIdAndBoardId(
       userId,
@@ -126,10 +106,8 @@ export class BoardService {
   }
 
   async cancelLike(userId: number, boardId: number) {
-    const board = await this.boardRepository.findOneBy({ id: boardId });
-    if (!board) {
-      throw new NotFoundException('존재하지 않는 게시글 입니다.');
-    }
+    const validateIds: ValidateIds = { boardId: boardId };
+    await this.validateService.existValidate(validateIds);
 
     const like = await this.boardLikeRepository.findByUserIdAndBoardId(
       userId,
