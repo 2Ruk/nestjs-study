@@ -1,18 +1,19 @@
 import {
   BadRequestException,
   Injectable,
-  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { ReplyRepository } from '@api/board/reply.repository';
 import { CreateReplyDto } from '@api/board/dto/create-reply.dto';
 import { UpdateReplyDto } from '@api/board/dto/update-reply.dto';
 import { BoardRepository } from '@api/board/board.repository';
+import { ReplyLikeRepository } from '@api/board/reply-like.repository';
 
 @Injectable()
 export class ReplyService {
   constructor(
     private readonly replyRepository: ReplyRepository,
+    private readonly replyLikeRepository: ReplyLikeRepository,
     private readonly boardRepository: BoardRepository,
   ) {}
 
@@ -47,7 +48,7 @@ export class ReplyService {
   ) {
     const board = await this.boardRepository.findOneBy({ id: boardId });
     if (!board) {
-      throw new NotFoundException('존재하지 않는 게시글입니다.');
+      throw new BadRequestException('존재하지 않는 게시글입니다.');
     }
 
     const reply = await this.replyRepository.findOneBy({
@@ -55,7 +56,7 @@ export class ReplyService {
       board: { id: boardId },
     });
     if (!reply) {
-      throw new NotFoundException('존재하지 않는 댓글입니다.');
+      throw new BadRequestException('존재하지 않는 댓글입니다.');
     }
 
     const user = await reply.user;
@@ -77,7 +78,7 @@ export class ReplyService {
   async delete(userId: number, boardId: number, replyId: number) {
     const board = await this.boardRepository.findOneBy({ id: boardId });
     if (!board) {
-      throw new NotFoundException('존재하지 않는 게시글입니다.');
+      throw new BadRequestException('존재하지 않는 게시글입니다.');
     }
 
     const reply = await this.replyRepository.findOneBy({
@@ -85,7 +86,7 @@ export class ReplyService {
       board: { id: boardId },
     });
     if (!reply) {
-      throw new NotFoundException('존재하지 않는 댓글입니다.');
+      throw new BadRequestException('존재하지 않는 댓글입니다.');
     }
 
     const user = await reply.user;
@@ -120,5 +121,64 @@ export class ReplyService {
         `${boardId} 게시글의 댓글을 불러오는데 실패하였습니다.`,
       );
     }
+  }
+
+  async like(userId: number, boardId: number, replyId: number) {
+    const board = await this.boardRepository.findOneBy({ id: boardId });
+    if (!board) {
+      throw new BadRequestException('존재하지 않는 게시글 입니다.');
+    }
+
+    const reply = await this.replyRepository.findOneBy({
+      id: replyId,
+      board: { id: boardId },
+    });
+    if (!reply) {
+      throw new BadRequestException('존재하지 않는 댓글입니다.');
+    }
+
+    const like = await this.replyLikeRepository.findOneBy({
+      reply: { id: replyId },
+      user: { id: userId },
+    });
+    if (like) {
+      throw new BadRequestException('이미 좋아요를 누른 댓글 입니다.');
+    }
+
+    const replyLike = this.replyLikeRepository.create({
+      reply: {
+        id: replyId,
+      },
+      user: {
+        id: userId,
+      },
+    });
+
+    await this.replyLikeRepository.save(replyLike);
+  }
+
+  async cancelLike(userId: number, boardId: number, replyId: number) {
+    const board = await this.boardRepository.findOneBy({ id: boardId });
+    if (!board) {
+      throw new BadRequestException('존재하지 않는 게시글 입니다.');
+    }
+
+    const reply = await this.replyRepository.findOneBy({
+      id: replyId,
+      board: { id: boardId },
+    });
+    if (!reply) {
+      throw new BadRequestException('존재하지 않는 댓글입니다.');
+    }
+
+    const like = await this.replyLikeRepository.findOneBy({
+      reply: { id: replyId },
+      user: { id: userId },
+    });
+    if (!like) {
+      throw new BadRequestException('좋아요를 취소할 수 없는 댓글 입니다.');
+    }
+
+    await this.replyLikeRepository.delete(like.id);
   }
 }

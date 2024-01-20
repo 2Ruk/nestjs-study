@@ -54,4 +54,24 @@ export class ReplyController {
   findAllByBoard(@Param('board_id') boardId: number) {
     return this.replyService.findAllByBoardId(boardId);
   }
+
+  @UseGuards(JwtGuard)
+  @Post(':board_id/reply/:reply_id/like')
+  like(
+    @CurrentUser() { id }: UserJwtPayload,
+    @Param('board_id') boardId: number,
+    @Param('reply_id') replyId: number,
+  ) {
+    return this.replyService.like(id, boardId, replyId);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':board_id/reply/:reply_id/like')
+  cancelLike(
+    @CurrentUser() { id }: UserJwtPayload,
+    @Param('board_id') boardId: number,
+    @Param('reply_id') replyId: number,
+  ) {
+    return this.replyService.cancelLike(id, boardId, replyId);
+  }
 }
