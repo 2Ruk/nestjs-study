@@ -19,7 +19,7 @@ export class Reply extends BaseEntity {
   @Column()
   content: string;
 
-  @ManyToOne(() => Board, { lazy: true })
+  @ManyToOne(() => Board, { lazy: true, onDelete: 'CASCADE', cascade: true })
   @JoinColumn({ name: 'board_id' })
   board: Board;
 

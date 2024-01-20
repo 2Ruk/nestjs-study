@@ -31,7 +31,7 @@ export class Board extends BaseEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToMany(() => BoardLike, (like) => like.board)
+  @OneToMany(() => BoardLike, (like) => like.board, { cascade: true })
   likes: BoardLike[];
 
   @CreateDateColumn()

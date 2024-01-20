@@ -14,7 +14,7 @@ export class ReplyLike extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Reply)
+  @ManyToOne(() => Reply, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'reply_id' })
   reply: Reply;
 
