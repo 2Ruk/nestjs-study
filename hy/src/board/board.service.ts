@@ -25,23 +25,7 @@ export class BoardService {
 
   async findAll() {
     try {
-      return await this.boardRepository
-        .createQueryBuilder('board')
-        .where('board.user_id IS NOT NULL AND board.deleted = false')
-        .innerJoinAndSelect('board.user', 'user')
-        .select([
-          'board.id',
-          'board.title',
-          'board.description',
-          'board.status',
-          'board.created_at',
-          'board.updated_at',
-          'user.id',
-          'user.username',
-          'user.created_at',
-          'user.updated_at',
-        ])
-        .getMany();
+      return await this.boardRepository.findAll();
     } catch (e) {
       console.log(e);
       throw new BadRequestException('게시글을 불러오는데 실패하였습니다.');

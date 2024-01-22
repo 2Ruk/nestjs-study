@@ -6,6 +6,7 @@ import { BoardModule } from './board/board.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DbConfig } from '@api/library/config/db.config';
+import { BoardLikeModule } from '@api/board-like/board-like.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { DbConfig } from '@api/library/config/db.config';
     }),
     UserModule,
     BoardModule,
+    BoardLikeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
