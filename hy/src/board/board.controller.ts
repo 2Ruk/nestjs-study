@@ -5,8 +5,8 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   UseGuards,
+  Delete,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
@@ -52,5 +52,14 @@ export class BoardController {
     @Body() updateBoardDto: UpdateBoardDto,
   ) {
     return this.boardService.update(userId, id, updateBoardDto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Delete(':id')
+  deleteOneBoard(
+    @CurrentUser() { id: userId }: UserJwtPayload,
+    @Param('id') id: number,
+  ) {
+    return this.boardService.delete(userId, id);
   }
 }

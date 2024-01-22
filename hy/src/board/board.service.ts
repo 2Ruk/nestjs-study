@@ -27,8 +27,20 @@ export class BoardService {
     try {
       return await this.boardRepository
         .createQueryBuilder('board')
-        .where('board.user_id IS NOT NULL')
+        .where('board.user_id IS NOT NULL AND board.deleted = false')
         .innerJoinAndSelect('board.user', 'user')
+        .select([
+          'board.id',
+          'board.title',
+          'board.description',
+          'board.status',
+          'board.created_at',
+          'board.updated_at',
+          'user.id',
+          'user.username',
+          'user.created_at',
+          'user.updated_at',
+        ])
         .getMany();
     } catch (e) {
       console.log(e);
@@ -53,6 +65,19 @@ export class BoardService {
   }
 
   async update(userId: number, id: number, updateBoardDto: UpdateBoardDto) {
+    const board = await this.getBoardByUserWithValidate(id, userId);
+    board.title = updateBoardDto.title;
+    board.description = updateBoardDto.description;
+    await this.boardRepository.save(board);
+  }
+
+  async delete(userId: number, id: number) {
+    const board = await this.getBoardByUserWithValidate(id, userId);
+    board.deleted = true;
+    await this.boardRepository.save(board);
+  }
+
+  private async getBoardByUserWithValidate(id: number, userId: number) {
     const board = await this.boardRepository.findOne({
       where: {
         id: id,
@@ -63,11 +88,8 @@ export class BoardService {
       throw new BadRequestException('존재하지 않는 게시글입니다.');
     }
     if (board.user.id !== userId) {
-      throw new ForbiddenException('본인의 게시글만 수정할 수 있습니다.');
+      throw new ForbiddenException('본인의 게시글만 삭제할 수 있습니다.');
     }
-
-    board.title = updateBoardDto.title;
-    board.description = updateBoardDto.description;
-    await this.boardRepository.save(board);
+    return board;
   }
 }

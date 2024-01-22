@@ -34,4 +34,7 @@ export class Board extends BaseEntity {
 
   @UpdateDateColumn()
   updated_at: Date;
+
+  @Column({ default: false })
+  deleted: boolean;
 }
