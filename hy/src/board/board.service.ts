@@ -1,8 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { BoardRepository } from '@api/board/board.repository';
 import { Board } from '@api/board/entities/board.entity';
 import { BoardStatus } from '@api/user/enum/board.status.enum';
+import { UpdateBoardDto } from '@api/board/dto/update-board.dto';
 
 @Injectable()
 export class BoardService {
@@ -45,5 +50,24 @@ export class BoardService {
   }
   async findAllMyBoard(userId: number) {
     return await this.boardRepository.findAllMyBoard(userId);
+  }
+
+  async update(userId: number, id: number, updateBoardDto: UpdateBoardDto) {
+    const board = await this.boardRepository.findOne({
+      where: {
+        id: id,
+      },
+      relations: ['user'],
+    });
+    if (!board) {
+      throw new BadRequestException('존재하지 않는 게시글입니다.');
+    }
+    if (board.user.id !== userId) {
+      throw new ForbiddenException('본인의 게시글만 수정할 수 있습니다.');
+    }
+
+    board.title = updateBoardDto.title;
+    board.description = updateBoardDto.description;
+    await this.boardRepository.save(board);
   }
 }

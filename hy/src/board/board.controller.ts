@@ -10,10 +10,10 @@ import {
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
 import { JwtGuard } from '@api/auth/jwt.guard';
 import { CurrentUser } from '@api/library/decorator/current-user';
 import { UserJwtPayload } from '@api/auth/auth.service';
+import { UpdateBoardDto } from '@api/board/dto/update-board.dto';
 
 @Controller('board')
 export class BoardController {
@@ -42,5 +42,15 @@ export class BoardController {
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.boardService.findOne(+id);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch(':id')
+  update(
+    @CurrentUser() { id: userId }: UserJwtPayload,
+    @Param('id') id: number,
+    @Body() updateBoardDto: UpdateBoardDto,
+  ) {
+    return this.boardService.update(userId, id, updateBoardDto);
   }
 }
