@@ -7,6 +7,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserModule } from './user/user.module';
 import { AppService } from './app.service';
 import { Module } from '@nestjs/common';
+import { ReplyLikeModule } from '@api/reply/reply-like.module';
+import { ReplyModule } from '@api/reply/reply.module';
 
 @Module({
   imports: [
@@ -22,6 +24,8 @@ import { Module } from '@nestjs/common';
     UserModule,
     BoardModule,
     BoardLikeModule,
+    ReplyModule,
+    ReplyLikeModule,
   ],
   controllers: [AppController],
   providers: [AppService],
