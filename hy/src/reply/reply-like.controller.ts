@@ -10,7 +10,11 @@ export class ReplyLikeController {
 
   @UseGuards(JwtGuard)
   @Post()
-  async likeBoard(@CurrentUser() { id: userId }: UserJwtPayload) {
+  async likeBoard(
+    @Param('boardId') boardId: number,
+    @Param('replyId') replyId: number,
+    @CurrentUser() { id: userId }: UserJwtPayload,
+  ) {
     // return this.replyLikeService.likeReply(id);
   }
 
