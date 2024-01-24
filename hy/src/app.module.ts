@@ -1,12 +1,12 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { UserModule } from './user/user.module';
-import { BoardModule } from './board/board.module';
+import { BoardLikeModule } from '@api/board/board-like.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { DbConfig } from '@api/library/config/db.config';
-import { BoardLikeModule } from '@api/board-like/board-like.module';
+import { BoardModule } from './board/board.module';
+import { AppController } from './app.controller';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UserModule } from './user/user.module';
+import { AppService } from './app.service';
+import { Module } from '@nestjs/common';
 
 @Module({
   imports: [

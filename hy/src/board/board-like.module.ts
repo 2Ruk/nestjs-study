@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { BoardLikeController } from '@api/board-like/board-like.controller';
-import { BoardLikeService } from '@api/board-like/board-like.service';
-import { BoardLikeRepository } from '@api/board-like/board-like.repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { BoardLikeRepository } from '@api/board/board-like.repository';
+import { BoardLikeService } from '@api/board/board-like.service';
+import { BoardLikeController } from '@api/board/board-like.controller';
 
 @Module({
   imports: [TypeOrmModule.forFeature([BoardLikeRepository])],

@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { BoardLikeRepository } from '@api/board-like/board-like.repository';
+import { BoardLikeRepository } from '@api/board/board-like.repository';
 
 @Injectable()
 export class BoardLikeService {
