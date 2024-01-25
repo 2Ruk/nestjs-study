@@ -1,4 +1,5 @@
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   DeleteDateColumn,
@@ -11,8 +12,8 @@ import {
 import { User } from '@api/user/entities/user.entity';
 import { Board } from '@api/board/entities/board.entity';
 
-@Entity()
-export class ReplyEntity {
+@Entity('reply')
+export class ReplyEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 

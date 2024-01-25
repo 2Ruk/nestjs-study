@@ -39,7 +39,7 @@ export class UserService {
 
   async loginUser({ userName, password }: LoginDto): Promise<string> {
     // NOTE: 유저 이름 검색 후 중복시 에러
-    const user = await this.findOne(userName);
+    const user = await this.findOneWithPassword(userName);
     if (!user) throw new BadRequestException('존재하지 않는 유저입니다.');
 
     // NOTE: 비밀번호 검증
@@ -70,6 +70,14 @@ export class UserService {
   async findOne(userName: string): Promise<User> {
     return await this.userRepository.findOneBy({
       username: userName,
+    });
+  }
+  private async findOneWithPassword(userName: string): Promise<User> {
+    return await this.userRepository.findOne({
+      select: ['id', 'username', 'password'],
+      where: {
+        username: userName,
+      },
     });
   }
 }

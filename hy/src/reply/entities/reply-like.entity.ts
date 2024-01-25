@@ -8,9 +8,10 @@ import {
 } from 'typeorm';
 import { User } from '@api/user/entities/user.entity';
 import { Board } from '@api/board/entities/board.entity';
+import { ReplyEntity } from '@api/reply/entities/reply.entity';
 
-@Entity()
-@Unique('UQ_REPLY_LIKE', ['user', 'board'])
+@Entity('reply_like')
+@Unique('UQ_REPLY_LIKE_1', ['user', 'reply'])
 export class ReplyLikeEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -19,9 +20,9 @@ export class ReplyLikeEntity {
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @ManyToOne(() => Board)
-  @JoinColumn({ name: 'board_id' })
-  board: Board;
+  @ManyToOne(() => ReplyEntity)
+  @JoinColumn({ name: 'reply_id' })
+  reply: ReplyEntity;
 
   @CreateDateColumn()
   created_at: Date;
