@@ -35,6 +35,7 @@ export class AuthService {
     hashedPassword: string,
   ): Promise<boolean> {
     const isPasswordValid = await bcrypt.compare(password, hashedPassword);
+
     return isPasswordValid;
   }
 }

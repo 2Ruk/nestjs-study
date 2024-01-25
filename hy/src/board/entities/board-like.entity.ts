@@ -1,29 +1,24 @@
 import {
   BaseEntity,
-  Column,
   CreateDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  Unique,
 } from 'typeorm';
-import { BoardStatus } from '@api/user/enum/board.status.enum';
+import { Board } from '@api/board/entities/board.entity';
 import { User } from '@api/user/entities/user.entity';
 
 @Entity()
-export class Board extends BaseEntity {
+@Unique('board_like_unique', ['board', 'user'])
+export class BoardLike extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  title: string;
-
-  @Column()
-  description: string;
-
-  @Column()
-  status: BoardStatus;
+  @ManyToOne(() => Board)
+  @JoinColumn({ name: 'board_id' })
+  board: Board;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
@@ -31,10 +26,4 @@ export class Board extends BaseEntity {
 
   @CreateDateColumn()
   created_at: Date;
-
-  @UpdateDateColumn()
-  updated_at: Date;
-
-  @Column({ default: false })
-  deleted: boolean;
 }

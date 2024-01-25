@@ -1,6 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
 import { DataSource, Repository } from 'typeorm';
 import { Board } from '@api/board/entities/board.entity';
 
@@ -14,6 +12,25 @@ export class BoardRepository extends Repository<Board> {
       .where('board.user_id = :id', {
         userId,
       })
+      .getMany();
+  }
+
+  async findAll() {
+    return await this.createQueryBuilder('board')
+      .where('board.user_id IS NOT NULL AND board.deleted = false')
+      .innerJoinAndSelect('board.user', 'user')
+      .select([
+        'board.id',
+        'board.title',
+        'board.description',
+        'board.status',
+        'board.created_at',
+        'board.updated_at',
+        'user.id',
+        'user.username',
+        'user.created_at',
+        'user.updated_at',
+      ])
       .getMany();
   }
 }

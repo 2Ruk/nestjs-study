@@ -2,32 +2,31 @@ import {
   BaseEntity,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { BoardStatus } from '@api/user/enum/board.status.enum';
 import { User } from '@api/user/entities/user.entity';
+import { Board } from '@api/board/entities/board.entity';
 
-@Entity()
-export class Board extends BaseEntity {
+@Entity('reply')
+export class ReplyEntity extends BaseEntity {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column()
-  title: string;
-
-  @Column()
-  description: string;
-
-  @Column()
-  status: BoardStatus;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: User;
+
+  @ManyToOne(() => Board)
+  @JoinColumn({ name: 'board_id' })
+  board: Board;
+
+  @Column()
+  content: string;
 
   @CreateDateColumn()
   created_at: Date;
@@ -35,6 +34,6 @@ export class Board extends BaseEntity {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @Column({ default: false })
-  deleted: boolean;
+  @DeleteDateColumn()
+  deleted: Date;
 }
