@@ -15,7 +15,11 @@ export class ReplyLikeController {
     @Param('replyId') replyId: number,
     @CurrentUser() { id: userId }: UserJwtPayload,
   ) {
-    // return this.replyLikeService.likeReply(id);
+    return this.replyLikeService.likeReply({
+      boardId,
+      replyId,
+      userId,
+    });
   }
 
   @UseGuards(JwtGuard)
@@ -25,6 +29,10 @@ export class ReplyLikeController {
     @Param('replyId') replyId: number,
     @CurrentUser() { id: userId }: UserJwtPayload,
   ) {
-    // return this.replyLikeService.unlikeReply(boardId, replyId, userId);
+    return this.replyLikeService.unlikeReply({
+      boardId,
+      replyId,
+      userId,
+    });
   }
 }

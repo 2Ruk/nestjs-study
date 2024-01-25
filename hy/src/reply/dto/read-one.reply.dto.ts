@@ -1,4 +1,5 @@
 export class ReadOneReplyDto {
+  // 여긴 대충 해둠 ㅠㅠ...
   id: number;
   content: string;
   created_at: Date;
