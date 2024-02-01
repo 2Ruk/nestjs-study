@@ -30,8 +30,8 @@ export class ReplyController {
   }
 
   @Get()
-  findAll() {
-    return this.replyService.findAll();
+  findAll(@Param('boardId') boardId: number) {
+    return this.replyService.findAll(boardId);
   }
 
   @Get(':id')
