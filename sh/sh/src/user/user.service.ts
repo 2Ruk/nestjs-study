@@ -1,6 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
 import { AuthService } from '@api/auth/auth.service';
 import { UserRepository } from '@api/user/user.repository';
 import { User } from '@api/user/entities/user.entity';
@@ -13,6 +12,7 @@ export class UserService {
     private readonly authService: AuthService,
     private readonly userRepository: UserRepository,
   ) {}
+
   async create(createUserDto: CreateUserDto) {
     // NOTE: 유저 이름 검색 후 중복시 에러
     const findUser = await this.findOne(createUserDto.userName);
