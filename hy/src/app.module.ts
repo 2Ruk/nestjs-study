@@ -9,17 +9,17 @@ import { DbConfig } from '@api/library/config/db.config';
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-      envFilePath: ['.env.local'],
-      isGlobal: true,
-    }),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: DbConfig,
-    }),
-    UserModule,
-    BoardModule,
+    // ConfigModule.forRoot({
+     // envFilePath: ['.env.local'],
+     // isGlobal: true,
+    //}),
+    //TypeOrmModule.forRootAsync({
+    //  imports: [ConfigModule],
+    //  inject: [ConfigService],
+    //  useFactory: DbConfig,
+    //}),
+    // UserModule,
+    // BoardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
