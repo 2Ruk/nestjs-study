@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { BoardRepository } from '@api/board/board.repository';
 import { Board } from '@api/board/entities/board.entity';
@@ -30,7 +34,9 @@ export class BoardService {
     const board = await this.findOne(boardId);
 
     if (userId !== board.user.id) {
-      throw new BadRequestException('다른 유저의 게시글은 수정할 수 없습니다.');
+      throw new UnauthorizedException(
+        '다른 유저의 게시글은 수정할 수 없습니다.',
+      );
     }
 
     const updateBoard = {
@@ -39,6 +45,18 @@ export class BoardService {
     };
 
     await this.boardRepository.save(updateBoard);
+  }
+
+  async delete(userId: number, boardId: number) {
+    const board = await this.findOne(boardId);
+
+    if (userId !== board.user.id) {
+      throw new UnauthorizedException(
+        '다른 유저의 게시글은 삭제할 수 없습니다.',
+      );
+    }
+
+    await this.boardRepository.delete(boardId);
   }
 
   async findAll() {
