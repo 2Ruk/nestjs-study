@@ -5,15 +5,15 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { BoardService } from './board.service';
 import { CreateBoardDto } from './dto/create-board.dto';
-import { UpdateBoardDto } from './dto/update-board.dto';
 import { JwtGuard } from '@api/auth/jwt.guard';
 import { CurrentUser } from '@api/library/decorator/current-user';
 import { UserJwtPayload } from '@api/auth/auth.service';
+import { UpdateBoardDto } from './dto/update-board.dto';
 
 @Controller('board')
 export class BoardController {
@@ -26,6 +26,16 @@ export class BoardController {
     @Body() createBoardDto: CreateBoardDto,
   ) {
     return this.boardService.create(id, createBoardDto);
+  }
+
+  @UseGuards(JwtGuard)
+  @Patch(':boardId')
+  update(
+    @CurrentUser() { id }: UserJwtPayload,
+    @Param('boardId', ParseIntPipe) boardId: number,
+    @Body() UpdateBoardDto: UpdateBoardDto,
+  ) {
+    return this.boardService.update(id, boardId, UpdateBoardDto);
   }
 
   @Get()

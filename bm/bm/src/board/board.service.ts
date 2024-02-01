@@ -3,11 +3,15 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { BoardRepository } from '@api/board/board.repository';
 import { Board } from '@api/board/entities/board.entity';
 import { BoardStatus } from '@api/user/enum/board.status.enum';
+import { UpdateBoardDto } from './dto/update-board.dto';
 
 @Injectable()
 export class BoardService {
+  /** 메모: @InjectRepository(BoardRepository) 이거 안 해줘도 되는지? */
   constructor(private readonly boardRepository: BoardRepository) {}
+
   async create(userId: number, createBoardDto: CreateBoardDto) {
+    /** 메모: boardRepository.create 이 아니라 entity.create 으로 함?? */
     const board = Board.create({
       ...createBoardDto,
       status: BoardStatus.PUBLIC,
@@ -16,6 +20,25 @@ export class BoardService {
       },
     });
     await this.boardRepository.save(board);
+  }
+
+  async update(
+    userId: number,
+    boardId: number,
+    updateBoardDto: UpdateBoardDto,
+  ) {
+    const board = await this.findOne(boardId);
+
+    if (userId !== board.user.id) {
+      throw new BadRequestException('다른 유저의 게시글은 수정할 수 없습니다.');
+    }
+
+    const updateBoard = {
+      ...board,
+      ...updateBoardDto,
+    };
+
+    await this.boardRepository.save(updateBoard);
   }
 
   async findAll() {
